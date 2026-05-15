@@ -40,7 +40,7 @@ export async function PUT(
     }
 
     // Usamos una transacción para asegurar que todo se actualice o nada
-    const result = await prisma.$transaction(async (tx) => {
+    const result = await prisma.$transaction(async (tx: any) => {
       // 1. Actualizar el comercio
       const updatedBusiness = await tx.business.update({
         where: { id },
@@ -97,7 +97,7 @@ export async function DELETE(
 ) {
   try {
     const { id } = await params;
-    await prisma.$transaction(async (tx) => {
+    await prisma.$transaction(async (tx: any) => {
       await tx.menuItem.deleteMany({
         where: { businessId: id }
       });

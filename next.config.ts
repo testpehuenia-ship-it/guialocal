@@ -7,9 +7,17 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'images.unsplash.com',
       },
+      {
+        protocol: 'https',
+        hostname: 'res.cloudinary.com',
+      },
+      {
+        protocol: 'https',
+        hostname: '*.public.blob.vercel-storage.com',
+      },
     ],
   },
-  serverExternalPackages: ['@prisma/client', 'better-sqlite3'],
+  serverExternalPackages: ['@prisma/client', '@libsql/client'],
 };
 
 export default nextConfig;
