@@ -1,5 +1,14 @@
 import { NextResponse } from 'next/server';
-import { put } from '@vercel/blob';
+import { v2 as cloudinary } from 'cloudinary';
+
+// Configurar Cloudinary si las variables existen
+if (process.env.CLOUDINARY_CLOUD_NAME) {
+  cloudinary.config({
+    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET,
+  });
+}
 
 export async function POST(request: Request) {
   try {
@@ -10,16 +19,25 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'No se subió ningún archivo' });
     }
 
-    // Si estamos en Vercel (producción), usar Vercel Blob
-    if (process.env.BLOB_READ_WRITE_TOKEN) {
-      const blob = await put(file.name, file, {
-        access: 'public',
-        token: process.env.BLOB_READ_WRITE_TOKEN,
+    // Producción: usar Cloudinary
+    if (process.env.CLOUDINARY_CLOUD_NAME) {
+      const bytes = await file.arrayBuffer();
+      const buffer = Buffer.from(bytes);
+
+      // Subir a Cloudinary como base64
+      const base64 = buffer.toString('base64');
+      const dataUri = `data:${file.type};base64,${base64}`;
+
+      const result = await cloudinary.uploader.upload(dataUri, {
+        folder: 'pehueniago',
+        resource_type: 'auto',
+        quality: 'auto',
+        fetch_format: 'auto',
       });
 
       return NextResponse.json({
         success: true,
-        url: blob.url
+        url: result.secure_url,
       });
     }
 
@@ -28,8 +46,6 @@ export async function POST(request: Request) {
     const { join } = await import('path');
 
     const uploadsDir = join(process.cwd(), 'public', 'uploads');
-    
-    // Crear la carpeta si no existe
     await mkdir(uploadsDir, { recursive: true });
 
     const bytes = await file.arrayBuffer();
@@ -43,13 +59,13 @@ export async function POST(request: Request) {
 
     return NextResponse.json({
       success: true,
-      url: `/uploads/${filename}`
+      url: `/uploads/${filename}`,
     });
   } catch (error: any) {
     console.error('Error uploading file:', error);
     return NextResponse.json({
       success: false,
-      error: error.message || 'Error interno del servidor'
+      error: error.message || 'Error interno del servidor',
     });
   }
 }
