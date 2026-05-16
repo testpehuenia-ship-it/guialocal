@@ -9,11 +9,10 @@ let cachedPrisma: PrismaClient | null = null;
 function getPrisma(): PrismaClient {
   if (cachedPrisma) return cachedPrisma;
 
-  // Intentamos obtener la URL de varias posibles fuentes para máxima compatibilidad
   const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
   const token = process.env.TURSO_AUTH_TOKEN;
 
-  if (process.env.VERCEL === '1' || url) {
+  if (process.env.VERCEL === '1' || (url && url.startsWith('libsql'))) {
     if (!url && process.env.VERCEL === '1') {
       console.error("❌ ERROR: No se encontró DATABASE_URL ni TURSO_DATABASE_URL");
     }
@@ -24,13 +23,8 @@ function getPrisma(): PrismaClient {
     });
 
     const adapter = new PrismaLibSql(libsql as any);
-    // Pasamos la URL también al constructor de Prisma para evitar el error de 'undefined'
-    cachedPrisma = new PrismaClient({ 
-      adapter,
-      datasources: {
-        db: { url: url || 'libsql://placeholder.turso.io' }
-      }
-    });
+    // Quitamos datasources para evitar error de tipos, Prisma leerá la variable DATABASE_URL del entorno automáticamente
+    cachedPrisma = new PrismaClient({ adapter });
   } else {
     try {
       const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
