@@ -4,16 +4,16 @@ import { createClient } from '@libsql/client';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-let prisma: PrismaClient;
+let cachedPrisma: PrismaClient | null = null;
 
-function getPrisma() {
-  if (prisma) return prisma;
+function getPrisma(): PrismaClient {
+  if (cachedPrisma) return cachedPrisma;
 
   const url = process.env.TURSO_DATABASE_URL;
   const token = process.env.TURSO_AUTH_TOKEN;
 
   if (process.env.VERCEL === '1' || url) {
-    if (!url) {
+    if (!url && process.env.VERCEL === '1') {
       console.error("❌ CRÍTICO: TURSO_DATABASE_URL no está definida en Vercel.");
     }
     
@@ -23,18 +23,18 @@ function getPrisma() {
     });
 
     const adapter = new PrismaLibSql(libsql as any);
-    prisma = new PrismaClient({ adapter });
+    cachedPrisma = new PrismaClient({ adapter });
   } else {
     // Local fallback
     try {
       const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
       const adapter = new PrismaBetterSqlite3({ url: 'file:dev.db' });
-      prisma = new PrismaClient({ adapter });
+      cachedPrisma = new PrismaClient({ adapter });
     } catch (e) {
-      prisma = new PrismaClient();
+      cachedPrisma = new PrismaClient();
     }
   }
-  return prisma;
+  return cachedPrisma;
 }
 
 export const prisma = globalForPrisma.prisma || getPrisma();
