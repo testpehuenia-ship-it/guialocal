@@ -4,41 +4,52 @@ import { createClient } from '@libsql/client';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-let cachedPrisma: PrismaClient | null = null;
-
-function getPrisma(): PrismaClient {
-  if (cachedPrisma) return cachedPrisma;
+/**
+ * Función para obtener la instancia de Prisma.
+ * Se inicializa solo cuando se llama por primera vez en tiempo de ejecución.
+ */
+export function getPrisma(): PrismaClient {
+  if (globalForPrisma.prisma) return globalForPrisma.prisma;
 
   const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
   const token = process.env.TURSO_AUTH_TOKEN;
 
+  console.log('--- Iniciando conexión a DB ---');
+  console.log('URL presente:', !!url);
+  console.log('Ambiente:', process.env.NODE_ENV);
+
   if (process.env.VERCEL === '1' || (url && url.startsWith('libsql'))) {
-    if (!url && process.env.VERCEL === '1') {
-      console.error("❌ ERROR: No se encontró DATABASE_URL ni TURSO_DATABASE_URL");
+    if (!url) {
+      throw new Error("❌ ERROR FATAL: Ni DATABASE_URL ni TURSO_DATABASE_URL están definidas en el ambiente.");
     }
     
     const libsql = createClient({
-      url: url || 'libsql://placeholder.turso.io',
+      url: url,
       authToken: token,
     });
 
     const adapter = new PrismaLibSql(libsql as any);
-    // Quitamos datasources para evitar error de tipos, Prisma leerá la variable DATABASE_URL del entorno automáticamente
-    cachedPrisma = new PrismaClient({ adapter });
+    globalForPrisma.prisma = new PrismaClient({ adapter });
   } else {
     try {
       const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
       const adapter = new PrismaBetterSqlite3({ url: 'file:dev.db' });
-      cachedPrisma = new PrismaClient({ adapter });
+      globalForPrisma.prisma = new PrismaClient({ adapter });
     } catch (e) {
-      cachedPrisma = new PrismaClient();
+      globalForPrisma.prisma = new PrismaClient();
     }
   }
-  return cachedPrisma;
+
+  return globalForPrisma.prisma;
 }
 
-export const prisma = globalForPrisma.prisma || getPrisma();
-
-if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
+// Mantener el export default para no romper compatibilidad, 
+// pero internamente usará la función perezosa.
+export const prisma = new Proxy({} as PrismaClient, {
+  get: (target, prop) => {
+    const instance = getPrisma();
+    return (instance as any)[prop];
+  }
+});
 
 export default prisma;
