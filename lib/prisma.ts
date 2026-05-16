@@ -4,31 +4,40 @@ import { createClient } from '@libsql/client';
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
-function createPrismaClient(): PrismaClient {
-  const isVercel = process.env.VERCEL === '1';
-  
-  if (isVercel || process.env.TURSO_DATABASE_URL) {
+let prisma: PrismaClient;
+
+function getPrisma() {
+  if (prisma) return prisma;
+
+  const url = process.env.TURSO_DATABASE_URL;
+  const token = process.env.TURSO_AUTH_TOKEN;
+
+  if (process.env.VERCEL === '1' || url) {
+    if (!url) {
+      console.error("❌ CRÍTICO: TURSO_DATABASE_URL no está definida en Vercel.");
+    }
+    
     const libsql = createClient({
-      url: process.env.TURSO_DATABASE_URL || 'libsql://dummy.turso.io',
-      authToken: process.env.TURSO_AUTH_TOKEN,
+      url: url || 'libsql://placeholder-error.turso.io',
+      authToken: token,
     });
 
     const adapter = new PrismaLibSql(libsql as any);
-    return new PrismaClient({ adapter });
+    prisma = new PrismaClient({ adapter });
+  } else {
+    // Local fallback
+    try {
+      const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
+      const adapter = new PrismaBetterSqlite3({ url: 'file:dev.db' });
+      prisma = new PrismaClient({ adapter });
+    } catch (e) {
+      prisma = new PrismaClient();
+    }
   }
-
-  // Local development fallback
-  try {
-    const { PrismaBetterSqlite3 } = require('@prisma/adapter-better-sqlite3');
-    const adapter = new PrismaBetterSqlite3({ url: 'file:dev.db' });
-    return new PrismaClient({ adapter });
-  } catch (e) {
-    // Si falla el require (como en producción), devolvemos cliente estándar (fallará al conectar pero no al compilar)
-    return new PrismaClient();
-  }
+  return prisma;
 }
 
-export const prisma = globalForPrisma.prisma || createPrismaClient();
+export const prisma = globalForPrisma.prisma || getPrisma();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
