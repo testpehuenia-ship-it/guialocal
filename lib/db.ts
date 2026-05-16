@@ -11,23 +11,20 @@ const token = process.env.TURSO_AUTH_TOKEN;
 
 function createInstance() {
   console.log('>>> [DB_INIT] Creando nueva instancia de PrismaClient');
-  console.log('>>> [DB_INIT] URL:', url ? url.substring(0, 20) + '...' : '❌ NULL');
+  console.log('>>> [DB_INIT] URL Detectada:', url ? url.substring(0, 20) + '...' : '❌ NULL');
 
   if (process.env.VERCEL === '1' || (url && url.startsWith('libsql'))) {
     const libsql = createClient({
-      url: url || 'libsql://error-missing-url.turso.io',
+      url: url || 'libsql://error.turso.io',
       authToken: token,
     });
 
     const adapter = new PrismaLibSql(libsql as any);
-    return new PrismaClient({ 
-      adapter,
-      // @ts-ignore
-      datasources: { db: { url: url } }
-    } as any);
+    // Ya no pasamos 'datasources' porque Prisma leerá DATABASE_URL automáticamente
+    // ahora que confirmamos que está presente en el ambiente.
+    return new PrismaClient({ adapter });
   }
 
-  // Local fallback
   return new PrismaClient();
 }
 
