@@ -9,9 +9,15 @@ export async function GET() {
       orderBy: { title: 'asc' }
     });
     return NextResponse.json(categories);
-  } catch (error) {
+  } catch (error: any) {
     console.error('Error fetching categories:', error);
-    return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 });
+    return NextResponse.json({ 
+      error: error.message || 'Internal Server Error',
+      name: error.name,
+      code: error.code,
+      stack: error.stack,
+      meta: error.meta
+    }, { status: 500 });
   }
 }
 
