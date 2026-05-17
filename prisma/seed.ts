@@ -1,165 +1,167 @@
 import { PrismaClient } from '@prisma/client';
 import { PrismaBetterSqlite3 } from '@prisma/adapter-better-sqlite3';
+import { PrismaLibSql } from '@prisma/adapter-libsql';
+import dotenv from 'dotenv';
+import path from 'path';
 
-const adapter = new PrismaBetterSqlite3({ url: 'file:dev.db' });
-const prisma = new PrismaClient({ adapter });
+// Import local data sources
+import { CATEGORIES_DATA } from '../data/categories';
+import { COMERCIOS } from '../data/comercios';
+import { ALOJAMIENTOS } from '../data/alojamientos';
+import { AVENTURAS } from '../data/aventuras';
+import { GUIA_ITEMS } from '../data/guia';
+
+// Load environmental variables
+dotenv.config({ path: path.resolve(process.cwd(), '.env') });
+
+const url = process.env['TURSO_DATABASE_URL'] || process.env['DATABASE_URL'];
+const token = process.env['TURSO_AUTH_TOKEN'];
+
+let prisma: PrismaClient;
+
+// Set up dynamic database client based on config
+const isLocalForce = process.argv.includes('--local');
+
+if (!isLocalForce && url && (url.startsWith('libsql') || url.startsWith('https'))) {
+  let databaseUrl = url.replace(/^libsql:\/\//, 'https://');
+  if (databaseUrl.endsWith('.turso.i')) {
+    databaseUrl += 'o';
+  }
+  console.log('>>> [SEED] Conectando a la base de datos remota de Turso:', databaseUrl);
+  const adapter = new PrismaLibSql({
+    url: databaseUrl,
+    authToken: token,
+  });
+  prisma = new PrismaClient({ adapter });
+} else {
+  console.log('>>> [SEED] Conectando a la base de datos local SQLite (dev.db) [FORZADO LOCAL]');
+  const adapter = new PrismaBetterSqlite3({ url: 'dev.db' });
+  prisma = new PrismaClient({ adapter });
+}
 
 async function main() {
-  // 1. Clean database
+  // 1. Clean Database
+  console.log('1. Limpiando base de datos anterior...');
   await prisma.feature.deleteMany();
   await prisma.menuItem.deleteMany();
   await prisma.business.deleteMany();
   await prisma.category.deleteMany();
   await prisma.accommodation.deleteMany();
+  await prisma.adventure.deleteMany();
+  await prisma.localService.deleteMany();
   await prisma.admin.deleteMany();
-
-  console.log('Database cleaned.');
+  console.log('✓ Base de datos limpia.');
 
   // 2. Seed Categories
-  const categoriesData = [
-    { title: "Pizzería", link: "/comer#pizzería", image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80" },
-    { title: "Hamburguesa", link: "/comer#hamburguesa", image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80" },
-    { title: "Cervecería", link: "/comer#cervecería", image: "https://images.unsplash.com/photo-1532634922-8fe0b757fb13?auto=format&fit=crop&w=400&q=80" },
-    { title: "Roticería", link: "/comer#roticería", image: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=400&q=80" },
-    { title: "Restaurante", link: "/comer#restaurante", image: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=400&q=80" },
-    { title: "Cabañas", link: "/alojarse#cabañas", image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=400&q=80" },
-    { title: "Hoteles", link: "/alojarse#hoteles", image: "/images/hotel_pehuenia.png" },
-    { title: "Campings", link: "/alojarse#campings", image: "https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?auto=format&fit=crop&w=400&q=80" },
-    { title: "Trekking", link: "/aventuras#trekking", image: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=400&q=80" },
-    { title: "A. Acuaticas", link: "/aventuras#a.-acuaticas", image: "/images/aventura_rafting.png" },
-    { title: "Cabalgatas", link: "/aventuras#cabalgatas", image: "/images/aventura_cabalgatas.png" },
-    { title: "Nieve", link: "/aventuras#nieve", image: "https://images.unsplash.com/photo-1605540436563-5bca919ae766?auto=format&fit=crop&w=400&q=80" },
-    { title: "Pesca", link: "/aventuras#pesca", image: "/images/aventura_pesca.png" },
-    { title: "Agencia de turismo", link: "/aventuras#agencia-de-turismo", image: "/images/aventura_agencia.png" }
-  ];
-
-  for (const cat of categoriesData) {
-    await prisma.category.create({ data: cat });
+  console.log('2. Sembrando Categorías...');
+  for (const cat of CATEGORIES_DATA) {
+    await prisma.category.create({
+      data: {
+        title: cat.title,
+        link: cat.link,
+        image: cat.image
+      }
+    });
   }
-  console.log('Categories seeded.');
+  console.log(`✓ Sembradas ${CATEGORIES_DATA.length} categorías.`);
 
-  // 3. Seed Businesses
-  const businessesData = [
-    {
-      name: "La Pizzería del Bosque",
-      categoryTitle: "Pizzería",
-      image: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=400&q=80",
-      whatsapp: "5492942123456",
-      menu: [
-        { name: "Muzarella Especial", description: "Muzarella, aceitunas y orégano", price: 8500 },
-        { name: "Napolitana", description: "Tomate natural, ajo y perejil", price: 9200 },
-        { name: "Fugazzeta con Queso", description: "Cebolla y muzarella", price: 8800 }
-      ]
-    },
-    {
-      name: "Pehuenia Burger",
-      categoryTitle: "Hamburguesa",
-      image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=400&q=80",
-      whatsapp: "5492942123456",
-      menu: [
-        { name: "Pehuen Burger", description: "Doble medallón, cheddar, bacon y salsa especial", price: 7500 },
-        { name: "Burger Clásica", description: "Lechuga, tomate y queso", price: 6200 }
-      ]
-    },
-    {
-      name: "Cervecería del Lago",
-      categoryTitle: "Cervecería",
-      image: "https://images.unsplash.com/photo-1550341298-903795d3763d?auto=format&fit=crop&w=400&q=80",
-      whatsapp: "5492942123456",
-      menu: [
-        { name: "IPA Artesanal 1L", description: "Cerveza lupulada de la casa", price: 4500 },
-        { name: "Honey 1L", description: "Suave con toque de miel local", price: 4200 }
-      ]
+  // 3. Seed Businesses & MenuItems
+  console.log('3. Sembrando Comercios y Menús...');
+  let bizCount = 0;
+  for (const biz of COMERCIOS) {
+    const category = await prisma.category.findUnique({
+      where: { title: biz.category }
+    });
+    if (!category) {
+      console.warn(`⚠️ Categoría "${biz.category}" no encontrada para el comercio "${biz.name}"`);
+      continue;
     }
-  ];
-
-  for (const biz of businessesData) {
-    const category = await prisma.category.findUnique({ where: { title: biz.categoryTitle } });
-    if (category) {
-      await prisma.business.create({
-        data: {
-          name: biz.name,
-          image: biz.image,
-          whatsapp: biz.whatsapp,
-          categoryId: category.id,
-          menu: {
-            create: biz.menu
-          }
+    await prisma.business.create({
+      data: {
+        name: biz.name,
+        image: biz.image,
+        whatsapp: biz.whatsapp,
+        categoryId: category.id,
+        menu: {
+          create: biz.menu.map(item => ({
+            name: item.name,
+            description: item.description,
+            price: item.price
+          }))
         }
-      });
-    }
+      }
+    });
+    bizCount++;
   }
-  console.log('Businesses seeded.');
+  console.log(`✓ Sembrados ${bizCount} comercios.`);
 
-  // 4. Seed Accommodations
-  const accommodationsData = [
-    {
-      name: "Cabañas del Lago Pehuenia",
-      type: "Cabañas",
-      image: "https://images.unsplash.com/photo-1510798831971-661eb04b3739?auto=format&fit=crop&w=800&q=80",
-      whatsapp: "5492942123456",
-      features: ["Wi-Fi", "Estacionamiento", "Calefacción", "Parrilla", "Cocina Equipada"]
-    },
-    {
-      name: "Refugio del Bosque",
-      type: "Cabañas",
-      image: "/images/refugio_bosque.png",
-      whatsapp: "5492942123456",
-      features: ["Wi-Fi", "Estufa a Leña", "Estacionamiento", "Parrilla"]
-    },
-    {
-      name: "Gran Hotel Pehuenia",
-      type: "Hoteles",
-      image: "/images/hotel_pehuenia.png",
-      whatsapp: "5492942123456",
-      features: ["Wi-Fi", "Desayuno Incluido", "Piscina Climatizada", "Spa", "Restaurante"]
-    },
-    {
-      name: "Hostel La Aventura",
-      type: "Hostel",
-      image: "https://images.unsplash.com/photo-1555854877-bab0e564b8d5?auto=format&fit=crop&w=800&q=80",
-      whatsapp: "5492942123456",
-      features: ["Wi-Fi", "Cocina Compartida", "Bar", "Lockers", "Ropa Blanca"]
-    },
-    {
-      name: "Camping Pino Hachado",
-      type: "Campings",
-      image: "https://images.unsplash.com/photo-1508873696983-2dfd5898f08b?auto=format&fit=crop&w=800&q=80",
-      whatsapp: "5492942123456",
-      features: ["Baños con Duchas", "Electricidad", "Proveeduría", "Parrillas"]
-    }
-  ];
-
-  for (const acc of accommodationsData) {
+  // 4. Seed Accommodations & Features
+  console.log('4. Sembrando Alojamientos...');
+  for (const acc of ALOJAMIENTOS) {
     await prisma.accommodation.create({
       data: {
         name: acc.name,
-        type: acc.type,
+        type: acc.category,
         image: acc.image,
         whatsapp: acc.whatsapp,
         features: {
-          create: acc.features.map(f => ({ name: f }))
+          create: acc.amenities.map(feat => ({
+            name: feat
+          }))
         }
       }
     });
   }
-  console.log('Accommodations seeded.');
+  console.log(`✓ Sembrados ${ALOJAMIENTOS.length} alojamientos.`);
 
-  // 5. Create Admin
+  // 5. Seed Adventures
+  console.log('5. Sembrando Aventuras...');
+  for (const adv of AVENTURAS) {
+    await prisma.adventure.create({
+      data: {
+        name: adv.name,
+        description: adv.description,
+        image: adv.image,
+        whatsapp: adv.whatsapp,
+        category: adv.category,
+        details: adv.details.join(',')
+      }
+    });
+  }
+  console.log(`✓ Sembradas ${AVENTURAS.length} aventuras.`);
+
+  // 6. Seed LocalServices
+  console.log('6. Sembrando Guía Local (Servicios locales)...');
+  for (const service of GUIA_ITEMS) {
+    await prisma.localService.create({
+      data: {
+        name: service.nombre,
+        category: service.categoria,
+        address: service.direccion,
+        whatsapp: null,
+        image: null
+      }
+    });
+  }
+  console.log(`✓ Sembrados ${GUIA_ITEMS.length} servicios de la Guía Local.`);
+
+  // 7. Seed Admin
+  console.log('7. Creando usuario administrador por defecto...');
   await prisma.admin.create({
     data: {
       username: 'admin',
-      password: 'admin123' // CAMBIAR EN PRODUCCIÓN
+      password: 'admin123'
     }
   });
-  console.log('Admin user created.');
+  console.log('✓ Sembrado administrador.');
 }
 
 main()
   .catch((e) => {
-    console.error(e);
+    console.error('❌ Error durante el seeding:', e);
     process.exit(1);
   })
   .finally(async () => {
     await prisma.$disconnect();
+    console.log('>>> [SEED] Desconectado de la base de datos.');
   });

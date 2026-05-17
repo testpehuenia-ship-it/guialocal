@@ -43,11 +43,57 @@ export default function MapaClient() {
   return (
     <div className="container" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       
-      <div style={{ marginBottom: '32px', textAlign: 'center' }}>
-        <h1 className="section-title" style={{ marginBottom: '8px' }}>Mapa y Rutas</h1>
-        <p style={{ color: 'var(--color-text-muted)', fontSize: '1.1rem' }}>
-          Explorá Villa Pehuenia y Moquehue en 3D
-        </p>
+      {/* Banner de Rutas */}
+      <div style={{
+        width: '100%',
+        height: '260px',
+        position: 'relative',
+        borderRadius: '24px',
+        overflow: 'hidden',
+        marginBottom: '32px',
+        boxShadow: 'var(--shadow-md)',
+      }}>
+        <img 
+          src="/images/banner_rutas.png" 
+          alt="Banner de Rutas Villa Pehuenia" 
+          style={{
+            width: '100%',
+            height: '100%',
+            objectFit: 'cover',
+          }}
+        />
+        <div style={{
+          position: 'absolute',
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: 'linear-gradient(to right, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0.2) 100%)',
+          display: 'flex',
+          flexDirection: 'column',
+          justifyContent: 'center',
+          padding: '40px',
+          color: 'white'
+        }}>
+          <h1 style={{ 
+            fontFamily: 'var(--font-oswald), sans-serif', 
+            fontSize: '2.8rem', 
+            fontWeight: 700, 
+            textTransform: 'uppercase', 
+            marginBottom: '8px',
+            textShadow: '2px 2px 4px rgba(0,0,0,0.6)'
+          }}>
+            Mapa y Rutas
+          </h1>
+          <p style={{ 
+            fontSize: '1.1rem', 
+            fontWeight: 500, 
+            margin: 0,
+            opacity: 0.9,
+            textShadow: '1px 1px 2px rgba(0,0,0,0.6)',
+            maxWidth: '500px',
+            lineHeight: '1.4'
+          }}>
+            Estado de rutas, accesos y mapa interactivo 3D de Villa Pehuenia y Moquehue.
+          </p>
+        </div>
       </div>
 
       <PublicityBanner height="100px" />

@@ -47,7 +47,7 @@ export default function ComerciosClient() {
     <div className="container" style={{ paddingTop: '40px', paddingBottom: '40px' }}>
       
       {/* Banner Principal de la Guía Local */}
-      <div style={{ position: 'relative', height: '240px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '40px', backgroundImage: 'url(https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=1200&q=80)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'var(--shadow-md)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px' }}>
+      <div style={{ position: 'relative', height: '240px', borderRadius: 'var(--radius-lg)', overflow: 'hidden', marginBottom: '40px', backgroundImage: 'url(/images/guia_local_banner.png)', backgroundSize: 'cover', backgroundPosition: 'center', boxShadow: 'var(--shadow-md)', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end', padding: '24px' }}>
         <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(to top, rgba(0,0,0,0.8) 0%, rgba(0,0,0,0.2) 100%)', zIndex: 1 }}></div>
 
         <div style={{ position: 'relative', zIndex: 2 }}>

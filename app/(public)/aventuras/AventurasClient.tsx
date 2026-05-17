@@ -59,11 +59,11 @@ export default function AventurasClient() {
         <div className="banner-categories">
           {[
             { cat: "Trekking", color: "#2a9d8f", bgImage: "https://images.unsplash.com/photo-1551632811-561732d1e306?auto=format&fit=crop&w=800&q=80" },
-            { cat: "A. Acuaticas", color: "#00b4d8", bgImage: "https://images.unsplash.com/photo-1530866495561-30d0ad770241?auto=format&fit=crop&w=800&q=80" },
-            { cat: "Cabalgatas", color: "#f4a261", bgImage: "https://images.unsplash.com/photo-1553285991-4c374698d975?auto=format&fit=crop&w=800&q=80" },
+            { cat: "A. Acuaticas", color: "#00b4d8", bgImage: "/images/aventura_rafting.png" },
+            { cat: "Cabalgatas", color: "#f4a261", bgImage: "/images/aventura_cabalgatas.png" },
             { cat: "Nieve", color: "#e9c46a", bgImage: "https://images.unsplash.com/photo-1605540436563-5bca919ae766?auto=format&fit=crop&w=800&q=80" },
-            { cat: "Pesca", color: "#e76f51", bgImage: "https://images.unsplash.com/photo-1582200831003-888e28587c69?auto=format&fit=crop&w=800&q=80" },
-            { cat: "Agencia de turismo", color: "#264653", bgImage: "https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?auto=format&fit=crop&w=800&q=80" }
+            { cat: "Pesca", color: "#e76f51", bgImage: "/images/aventura_pesca.png" },
+            { cat: "Agencia de turismo", color: "#264653", bgImage: "/images/aventura_agencia.png" }
           ].map((item) => (
             <a 
               href={`#${item.cat.replace(/ /g, '-').toLowerCase()}`} 
