@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/db';
 import AlojarseClient from './AlojarseClient';
 
 export const metadata: Metadata = {
@@ -20,6 +21,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
-  return <AlojarseClient />;
+// Revalida el caché cada 60 segundos (ISR)
+export const revalidate = 60;
+
+export default async function Page() {
+  const accommodations = await prisma.accommodation.findMany({
+    orderBy: { name: 'asc' }
+  });
+  
+  return <AlojarseClient initialAccommodations={JSON.parse(JSON.stringify(accommodations))} />;
 }

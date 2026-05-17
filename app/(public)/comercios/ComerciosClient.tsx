@@ -4,9 +4,9 @@ import React, { useState, useEffect } from 'react';
 import PublicityBanner from '@/components/PublicityBanner';
 import { Loader2, MapPin, Phone } from 'lucide-react';
 
-export default function ComerciosClient() {
-  const [services, setServices] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+export default function ComerciosClient({ initialServices }: { initialServices?: any[] }) {
+  const [services, setServices] = useState<any[]>(initialServices || []);
+  const [loading, setLoading] = useState(!initialServices);
 
   const fetchData = async () => {
     try {
@@ -21,8 +21,10 @@ export default function ComerciosClient() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!initialServices || initialServices.length === 0) {
+      fetchData();
+    }
+  }, [initialServices]);
 
   // Agrupamos por categoría para el renderizado
   const groupedServices = services.reduce((acc: any, service: any) => {

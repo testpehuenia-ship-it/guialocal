@@ -5,12 +5,12 @@ import Image from 'next/image';
 import PublicityBanner from '@/components/PublicityBanner';
 import { Loader2 } from 'lucide-react';
 
-export default function ComerClient() {
+export default function ComerClient({ initialCategories, initialBusinesses }: { initialCategories?: any[], initialBusinesses?: any[] }) {
   const [selectedComercio, setSelectedComercio] = useState<any | null>(null);
   const [cart, setCart] = useState<{ [key: string]: number }>({});
-  const [categories, setCategories] = useState<any[]>([]);
-  const [businesses, setBusinesses] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>(initialCategories || []);
+  const [businesses, setBusinesses] = useState<any[]>(initialBusinesses || []);
+  const [loading, setLoading] = useState(!initialCategories || !initialBusinesses);
 
   // Colores para las categorías si no tienen uno definido (simulamos los banners ilustrativos)
   const categoryStyles: { [key: string]: { color: string, bg: string } } = {
@@ -41,8 +41,10 @@ export default function ComerClient() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!initialCategories || !initialBusinesses || initialCategories.length === 0 || initialBusinesses.length === 0) {
+      fetchData();
+    }
+  }, [initialCategories, initialBusinesses]);
 
   const addToCart = (itemId: string) => {
     setCart(prev => ({

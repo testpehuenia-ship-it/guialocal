@@ -5,10 +5,10 @@ import Image from 'next/image';
 import PublicityBanner from '@/components/PublicityBanner';
 import { Loader2 } from 'lucide-react';
 
-export default function AventurasClient() {
+export default function AventurasClient({ initialAdventures }: { initialAdventures?: any[] }) {
   const [selectedAventura, setSelectedAventura] = useState<any | null>(null);
-  const [adventures, setAdventures] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [adventures, setAdventures] = useState<any[]>(initialAdventures || []);
+  const [loading, setLoading] = useState(!initialAdventures);
 
   const categories = ["Trekking", "A. Acuaticas", "Cabalgatas", "Nieve", "Pesca", "Agencia de turismo"];
 
@@ -25,8 +25,10 @@ export default function AventurasClient() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!initialAdventures || initialAdventures.length === 0) {
+      fetchData();
+    }
+  }, [initialAdventures]);
 
   const buildWhatsAppUrl = (aventura: any) => {
     const message = `*Hola ${aventura.name}!* \nTe contacto desde PehueniaGO.\nQuisiera consultar más información y reservar la siguiente actividad: *${aventura.category}*.\n\n¡Muchas gracias!`;

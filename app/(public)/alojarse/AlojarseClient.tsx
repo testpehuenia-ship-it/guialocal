@@ -5,10 +5,10 @@ import Image from 'next/image';
 import PublicityBanner from '@/components/PublicityBanner';
 import { Loader2 } from 'lucide-react';
 
-export default function AlojarseClient() {
+export default function AlojarseClient({ initialAccommodations }: { initialAccommodations?: any[] }) {
   const [selectedAlojamiento, setSelectedAlojamiento] = useState<any | null>(null);
-  const [accommodations, setAccommodations] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [accommodations, setAccommodations] = useState<any[]>(initialAccommodations || []);
+  const [loading, setLoading] = useState(!initialAccommodations);
 
   const accommodationTypes = ["Cabañas", "Hoteles", "Hostel", "Campings"];
 
@@ -30,8 +30,10 @@ export default function AlojarseClient() {
   };
 
   useEffect(() => {
-    fetchData();
-  }, []);
+    if (!initialAccommodations || initialAccommodations.length === 0) {
+      fetchData();
+    }
+  }, [initialAccommodations]);
 
   if (loading) {
     return (

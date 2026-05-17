@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/db';
 import ComerClient from './ComerClient';
 
 export const metadata: Metadata = {
@@ -20,6 +21,27 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
-  return <ComerClient />;
+// Revalida el caché cada 60 segundos (ISR)
+export const revalidate = 60;
+
+export default async function Page() {
+  const [categories, businesses] = await Promise.all([
+    prisma.category.findMany({
+      orderBy: { name: 'asc' }
+    }),
+    prisma.business.findMany({
+      include: {
+        menu: true,
+        category: true
+      },
+      orderBy: { name: 'asc' }
+    })
+  ]);
+  
+  return (
+    <ComerClient 
+      initialCategories={JSON.parse(JSON.stringify(categories))} 
+      initialBusinesses={JSON.parse(JSON.stringify(businesses))} 
+    />
+  );
 }

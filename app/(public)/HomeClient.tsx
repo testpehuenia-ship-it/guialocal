@@ -18,10 +18,10 @@ const BACKGROUND_IMAGES = [
   "/images/bg_slider_4.jpg",
 ];
 
-export default function HomeClient() {
+export default function HomeClient({ initialCategories }: { initialCategories?: any[] }) {
   const [bgIndex, setBgIndex] = useState(0);
-  const [categories, setCategories] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [categories, setCategories] = useState<any[]>(initialCategories || []);
+  const [loading, setLoading] = useState(!initialCategories);
 
   const fetchCategories = async () => {
     try {
@@ -36,7 +36,9 @@ export default function HomeClient() {
   };
 
   useEffect(() => {
-    fetchCategories();
+    if (!initialCategories || initialCategories.length === 0) {
+      fetchCategories();
+    }
     
     const interval = setInterval(() => {
       setBgIndex((prev) => (prev + 1) % BACKGROUND_IMAGES.length);

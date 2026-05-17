@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/db';
 import AventurasClient from './AventurasClient';
 
 export const metadata: Metadata = {
@@ -20,6 +21,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
-  return <AventurasClient />;
+// Revalida el caché cada 60 segundos (ISR)
+export const revalidate = 60;
+
+export default async function Page() {
+  const adventures = await prisma.adventure.findMany({
+    orderBy: { title: 'asc' }
+  });
+  
+  return <AventurasClient initialAdventures={JSON.parse(JSON.stringify(adventures))} />;
 }

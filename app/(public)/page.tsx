@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/db';
 import HomeClient from './HomeClient';
 
 export const metadata: Metadata = {
@@ -20,6 +21,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
-  return <HomeClient />;
+// Revalida el caché cada 60 segundos (ISR)
+export const revalidate = 60;
+
+export default async function Page() {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: 'asc' }
+  });
+  
+  return <HomeClient initialCategories={JSON.parse(JSON.stringify(categories))} />;
 }

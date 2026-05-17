@@ -1,4 +1,5 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/db';
 import ComerciosClient from './ComerciosClient';
 
 export const metadata: Metadata = {
@@ -20,6 +21,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
-  return <ComerciosClient />;
+// Revalida el caché cada 60 segundos (ISR)
+export const revalidate = 60;
+
+export default async function Page() {
+  const services = await prisma.localService.findMany({
+    orderBy: { name: 'asc' }
+  });
+  
+  return <ComerciosClient initialServices={JSON.parse(JSON.stringify(services))} />;
 }
