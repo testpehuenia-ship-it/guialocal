@@ -1,3 +1,4 @@
+import './init-env';
 import { PrismaClient } from '@prisma/client';
 import { PrismaLibSql } from '@prisma/adapter-libsql';
 import { createClient } from '@libsql/client';
@@ -5,11 +6,6 @@ import { createClient } from '@libsql/client';
 console.log('>>> [DB_INIT] Cargando módulo lib/db.ts');
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
-
-if (!process.env.DATABASE_URL) {
-  console.log('>>> [DB_INIT] Inyectando DATABASE_URL de fallback temporal: file:./dev.db');
-  process.env.DATABASE_URL = 'file:./dev.db';
-}
 
 const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
 const token = process.env.TURSO_AUTH_TOKEN;
