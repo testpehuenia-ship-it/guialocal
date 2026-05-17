@@ -26,7 +26,13 @@ function createInstance(): PrismaClient {
   if (process.env['VERCEL'] === '1' || (url && (url.startsWith('libsql') || url.startsWith('https')))) {
     // Si la URL empieza con libsql://, la convertimos a https:// para entornos Serverless
     // para garantizar una conexión HTTP POST robusta y rápida (evitando problemas de WebSocket).
-    const databaseUrl = url ? url.replace(/^libsql:\/\//, 'https://') : 'https://error.turso.io';
+    let databaseUrl = url ? url.replace(/^libsql:\/\//, 'https://') : 'https://error.turso.io';
+
+    // Corrección defensiva: si el dominio se recortó como ".turso.i" en Vercel, agregamos la "o" faltante.
+    if (databaseUrl.endsWith('.turso.i')) {
+      console.log('>>> [DB_INIT] Detectada URL recortada en Vercel (.turso.i). Corrigiendo a .turso.io');
+      databaseUrl += 'o';
+    }
 
     console.log('>>> [DB_INIT] Instanciando PrismaLibSql con URL segura:', databaseUrl.substring(0, 25) + '...');
 
