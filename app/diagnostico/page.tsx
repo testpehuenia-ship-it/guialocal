@@ -1,6 +1,20 @@
+import { prisma } from '@/lib/db';
+
 export const dynamic = 'force-dynamic';
 
-export default function DiagnosticsPage() {
+export default async function DiagnosticsPage() {
+  let dbResult = '';
+  let dbError = '';
+
+  try {
+    console.log('>>> [DIAGNOSTICO] Intentando consultar base de datos...');
+    const categoriesCount = await prisma.category.count();
+    dbResult = `✅ Conexión Exitosa. Cantidad de Categorías: ${categoriesCount}`;
+  } catch (err: any) {
+    console.error('>>> [DIAGNOSTICO] Error al conectar:', err);
+    dbError = `❌ Error: ${err.message || err}\nName: ${err.name}\nCode: ${err.code}\nStack:\n${err.stack}`;
+  }
+
   const getMaskedVal = (key: string) => {
     const val = process.env[key];
     if (val === undefined) return 'undefined (tipo undefined)';
@@ -23,7 +37,7 @@ export default function DiagnosticsPage() {
 
   return (
     <div style={{ padding: '40px', fontFamily: 'monospace' }}>
-      <h1>Diagnóstico de Variables de Entorno (v2)</h1>
+      <h1>Diagnóstico de Variables de Entorno (v3)</h1>
       <p>Variables detectadas:</p>
       <ul>
         {keys.map(k => (
@@ -32,6 +46,18 @@ export default function DiagnosticsPage() {
           </li>
         ))}
       </ul>
+      <hr />
+      <h2>Estado de la Base de Datos (Turso / Prisma)</h2>
+      {dbResult && (
+        <div style={{ color: 'green', backgroundColor: '#e6ffe6', padding: '15px', borderRadius: '5px', border: '1px solid green', whiteSpace: 'pre-wrap' }}>
+          {dbResult}
+        </div>
+      )}
+      {dbError && (
+        <div style={{ color: 'red', backgroundColor: '#ffe6e6', padding: '15px', borderRadius: '5px', border: '1px solid red', whiteSpace: 'pre-wrap' }}>
+          {dbError}
+        </div>
+      )}
       <hr />
       <p>Estado de VERCEL: {process.env.VERCEL === '1' ? '✅ SI' : '❌ NO'}</p>
       <p>NODE_ENV: {process.env.NODE_ENV}</p>
