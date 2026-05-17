@@ -19,7 +19,7 @@ export default function DiagnosticsPage() {
     return val;
   };
 
-  const keys = ['DATABASE_URL', 'TURSO_DATABASE_URL', 'TURSO_AUTH_TOKEN'];
+  const keys = ['DATABASE_URL', 'TURSO_DATABASE_URL', 'TURSO_AUTH_TOKEN', 'VERCEL_GIT_COMMIT_SHA'];
 
   return (
     <div style={{ padding: '40px', fontFamily: 'monospace' }}>
