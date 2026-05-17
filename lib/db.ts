@@ -14,7 +14,6 @@ function createInstance(): PrismaClient {
   // de DATABASE_URL ocurra antes de la inicialización interna de PrismaClient.
   const { PrismaClient: PrismaClientCtor } = require('@prisma/client');
   const { PrismaLibSql } = require('@prisma/adapter-libsql');
-  const { createClient } = require('@libsql/client');
 
   const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
   const token = process.env.TURSO_AUTH_TOKEN;
@@ -23,12 +22,12 @@ function createInstance(): PrismaClient {
   console.log('>>> [DB_INIT] URL Detectada:', url ? url.substring(0, 20) + '...' : '❌ NULL');
 
   if (process.env.VERCEL === '1' || (url && url.startsWith('libsql'))) {
-    const libsql = createClient({
+    // En Prisma 7, PrismaLibSql constructor recibe el objeto de configuración (Config)
+    // de @libsql/client directamente, no la instancia del cliente.
+    const adapter = new PrismaLibSql({
       url: url || 'libsql://error.turso.io',
       authToken: token,
     });
-
-    const adapter = new PrismaLibSql(libsql as any);
     return new PrismaClientCtor({ adapter });
   }
 
