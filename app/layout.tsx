@@ -25,9 +25,37 @@ const caveat = Caveat({
 });
 
 export const metadata: Metadata = {
-  title: "PehueniaGO | Guía y Delivery en Villa Pehuenia",
-  description: "Descubre dónde comer, alojarte y qué hacer en Villa Pehuenia. Pide comida directo por WhatsApp y reserva aventuras al instante.",
+  metadataBase: new URL('https://guialocal-ten.vercel.app'),
+  title: {
+    default: 'PehueniaGO | Guía y Delivery en Villa Pehuenia',
+    template: '%s | PehueniaGO'
+  },
+  description: 'Descubre dónde comer, alojarte y qué hacer en Villa Pehuenia. Pide comida directo por WhatsApp y reserva aventuras al instante.',
   keywords: ["Villa Pehuenia", "turismo", "delivery", "comida", "cabañas", "aventuras", "qué hacer", "dónde comer"],
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'large',
+      'max-snippet': -1,
+    },
+  },
+  openGraph: {
+    title: 'PehueniaGO | Guía y Delivery en Villa Pehuenia',
+    description: 'Descubre gastronomía, cabañas y aventuras en la joya de la Patagonia. Pedidos por WhatsApp al instante.',
+    url: 'https://guialocal-ten.vercel.app',
+    siteName: 'PehueniaGO',
+    locale: 'es_AR',
+    type: 'website',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'PehueniaGO | Guía y Delivery en Villa Pehuenia',
+    description: 'Descubre gastronomía, cabañas y aventuras en la Patagonia.',
+  }
 };
 
 export default function RootLayout({
