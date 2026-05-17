@@ -23,11 +23,17 @@ function createInstance(): PrismaClient {
   console.log('>>> [DB_INIT] Creando nueva instancia de PrismaClient');
   console.log('>>> [DB_INIT] URL Detectada:', url ? url.substring(0, 20) + '...' : '❌ NULL');
 
-  if (process.env['VERCEL'] === '1' || (url && url.startsWith('libsql'))) {
+  if (process.env['VERCEL'] === '1' || (url && (url.startsWith('libsql') || url.startsWith('https')))) {
+    // Si la URL empieza con libsql://, la convertimos a https:// para entornos Serverless
+    // para garantizar una conexión HTTP POST robusta y rápida (evitando problemas de WebSocket).
+    const databaseUrl = url ? url.replace(/^libsql:\/\//, 'https://') : 'https://error.turso.io';
+
+    console.log('>>> [DB_INIT] Instanciando PrismaLibSql con URL segura:', databaseUrl.substring(0, 25) + '...');
+
     // En Prisma 7, PrismaLibSql constructor recibe el objeto de configuración (Config)
     // de @libsql/client directamente, no la instancia del cliente.
     const adapter = new PrismaLibSql({
-      url: url || 'libsql://error.turso.io',
+      url: databaseUrl,
       authToken: token,
     });
     return new PrismaClientCtor({ adapter });
