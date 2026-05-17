@@ -6,6 +6,14 @@ console.log('>>> [DB_INIT] Cargando módulo lib/db.ts');
 
 const globalForPrisma = global as unknown as { prisma: PrismaClient };
 
+// Para evitar el error URL_INVALID en Vercel, inyectamos un valor de fallback válido para SQLite.
+// Prisma requiere una URL válida de SQLite (que empiece con 'file:') para validar internamente el esquema,
+// pero todas las consultas reales se desviarán a Turso a través del Driver Adapter.
+if (!process.env.DATABASE_URL || !process.env.DATABASE_URL.startsWith('file:')) {
+  console.log('>>> [DB_INIT] Inyectando DATABASE_URL temporal para validación de Prisma:', 'file:./dev.db');
+  process.env.DATABASE_URL = 'file:./dev.db';
+}
+
 const url = process.env.TURSO_DATABASE_URL || process.env.DATABASE_URL;
 const token = process.env.TURSO_AUTH_TOKEN;
 
