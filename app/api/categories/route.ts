@@ -15,7 +15,6 @@ export async function GET() {
       error: error.message || 'Internal Server Error',
       name: error.name,
       code: error.code,
-      stack: error.stack,
       meta: error.meta
     }, { status: 500 });
   }

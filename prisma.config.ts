@@ -9,10 +9,6 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    // Para SQLite y el adaptador de LibSQL en producción, Prisma requiere un formato de URL SQLite válido
-    // como 'file:./dev.db' para pasar la validación interna, aunque la conexión real se haga a través del adaptador.
-    url: process.env["DATABASE_URL"] && process.env["DATABASE_URL"].startsWith("file:")
-      ? process.env["DATABASE_URL"]
-      : "file:./dev.db",
+    url: process.env["DATABASE_URL"] || "file:./dev.db",
   },
 });
