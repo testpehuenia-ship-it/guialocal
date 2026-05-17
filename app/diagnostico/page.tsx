@@ -23,7 +23,7 @@ export default function DiagnosticsPage() {
 
   return (
     <div style={{ padding: '40px', fontFamily: 'monospace' }}>
-      <h1>Diagnóstico de Variables de Entorno</h1>
+      <h1>Diagnóstico de Variables de Entorno (v2)</h1>
       <p>Variables detectadas:</p>
       <ul>
         {keys.map(k => (
