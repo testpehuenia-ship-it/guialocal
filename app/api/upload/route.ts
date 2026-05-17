@@ -33,8 +33,6 @@ export async function POST(request: Request) {
       const result = await cloudinary.uploader.upload(dataUri, {
         folder: 'pehueniago',
         resource_type: 'auto',
-        quality: 'auto',
-        fetch_format: 'auto',
       });
 
       return NextResponse.json({

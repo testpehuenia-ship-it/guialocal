@@ -42,7 +42,7 @@ export const COMERCIOS: Comercio[] = [
     id: "cerveceria-artesanal",
     name: "Cervecería del Lago",
     category: "Cervecería",
-    image: "https://images.unsplash.com/photo-1550341298-903795d3763d?auto=format&fit=crop&w=400&q=80",
+    image: "https://images.unsplash.com/photo-1608270176090-e82d65a63334?auto=format&fit=crop&w=400&q=80",
     whatsapp: "5492942123456",
     menu: [
       { id: "c1", name: "IPA Artesanal 1L", description: "Cerveza lupulada de la casa", price: 4500 },

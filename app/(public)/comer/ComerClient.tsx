@@ -17,7 +17,7 @@ export default function ComerClient({ initialCategories, initialBusinesses }: { 
     "Pizzería": { color: "#e63946", bg: "https://images.unsplash.com/photo-1513104890138-7c749659a591?auto=format&fit=crop&w=800&q=80" },
     "Hamburguesa": { color: "#f4a261", bg: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=800&q=80" },
     "Cervecería": { color: "#e9c46a", bg: "https://images.unsplash.com/photo-1532634922-8fe0b757fb13?auto=format&fit=crop&w=800&q=80" },
-    "Roticería": { color: "#e76f51", bg: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=800&q=80" },
+    "Rotisería": { color: "#e76f51", bg: "https://images.unsplash.com/photo-1598514982205-f36b96d1e8d4?auto=format&fit=crop&w=800&q=80" },
     "Restaurante": { color: "#2a9d8f", bg: "https://images.unsplash.com/photo-1414235077428-338989a2e8c0?auto=format&fit=crop&w=800&q=80" },
     "Supermercado": { color: "#264653", bg: "https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&w=800&q=80" }
   };
