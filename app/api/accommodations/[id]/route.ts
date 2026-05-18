@@ -34,7 +34,7 @@ export async function PUT(
   try {
     const { id } = await params;
     const body = await request.json();
-    const { name, type, image, whatsapp, features } = body;
+    const { name, type, image, whatsapp, description, features } = body;
 
     // Primero eliminamos las características anteriores
     await prisma.feature.deleteMany({
@@ -49,6 +49,7 @@ export async function PUT(
         type,
         image,
         whatsapp,
+        description,
         features: {
           create: features.map((f: string) => ({ name: f }))
         }

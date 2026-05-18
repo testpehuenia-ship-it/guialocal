@@ -195,6 +195,18 @@ export default function AlojarseClient({ initialAccommodations }: { initialAccom
             <h2 style={{ fontSize: '1.8rem', fontWeight: 800, marginBottom: '8px' }}>{selectedAlojamiento.name}</h2>
             <p style={{ color: 'var(--color-orange)', fontWeight: 600, marginBottom: '16px', fontSize: '1.1rem' }}>{selectedAlojamiento.type}</p>
             
+            {selectedAlojamiento.description && (
+              <p style={{ 
+                color: 'var(--color-text)', 
+                fontSize: '1rem', 
+                lineHeight: '1.6', 
+                marginBottom: '24px', 
+                whiteSpace: 'pre-line' 
+              }}>
+                {selectedAlojamiento.description}
+              </p>
+            )}
+
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: '12px' }}>Comodidades</h3>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', marginBottom: '32px' }}>
               {selectedAlojamiento.features?.map((f: any) => (

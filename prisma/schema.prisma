@@ -45,14 +45,15 @@ model MenuItem {
 }
 
 model Accommodation {
-  id        String    @id @default(cuid())
-  name      String
-  type      String    // e.g., "Cabaña", "Hotel"
-  image     String
-  whatsapp  String
-  features  Feature[]
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
+  id          String    @id @default(cuid())
+  name        String
+  type        String    // e.g., "Cabaña", "Hotel"
+  image       String
+  whatsapp    String
+  description String?
+  features    Feature[]
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
 }
 
 model Feature {

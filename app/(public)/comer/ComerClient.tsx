@@ -139,16 +139,16 @@ export default function ComerClient({ initialCategories, initialBusinesses }: { 
         </div>
       </div>
       
-      <PublicityBanner height="100px" />
-
       <h1 className="section-title">¿Qué pedimos hoy?</h1>
 
       {categories
-        .filter(cat => !cat.title.toLowerCase().includes('camping') && !cat.title.toLowerCase().includes('cabaña'))
+        .filter(cat => 
+          cat.link?.startsWith('/comer') && 
+          !cat.title.toLowerCase().includes('camping') && 
+          !cat.title.toLowerCase().includes('cabaña')
+        )
         .map((cat, index) => {
         const catBusinesses = businesses.filter(b => b.categoryId === cat.id);
-        if (catBusinesses.length === 0) return null; // No mostramos categorías vacías
-
         const style = categoryStyles[cat.title] || { color: '#0d9488', bg: cat.image };
 
         return (
@@ -175,28 +175,48 @@ export default function ComerClient({ initialCategories, initialBusinesses }: { 
                 </h2>
               </div>
               
-              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-                {catBusinesses.map(comercio => (
-                  <button key={comercio.id} style={{ backgroundColor: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'var(--transition)', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left' }}
-                  onClick={() => {
-                    setSelectedComercio(comercio);
-                    setCart({});
-                  }}
-                  className="commerce-card"
-                  >
-                    <div style={{ position: 'relative', height: '160px' }}>
-                      {comercio.image ? (
-                        <Image src={comercio.image} alt={comercio.name} fill style={{ objectFit: 'cover' }} />
-                      ) : (
-                        <div style={{ width: '100%', height: '100%', background: '#e2e8f0' }} />
-                      )}
-                    </div>
-                    <div style={{ padding: '16px' }}>
-                      <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>{comercio.name}</h3>
-                      <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Ver menú y pedir</p>
-                    </div>
-                  </button>
-                ))}
+              <div style={{ display: 'grid', gridTemplateColumns: catBusinesses.length === 0 ? '1fr' : 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+                {catBusinesses.length === 0 ? (
+                  <div style={{
+                    padding: '40px 24px',
+                    textAlign: 'center',
+                    backgroundColor: 'rgba(0,0,0,0.02)',
+                    borderRadius: 'var(--radius-md)',
+                    border: '2px dashed var(--color-border)',
+                    color: 'var(--color-text-muted)',
+                    fontSize: '1.05rem',
+                    fontWeight: 500,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px'
+                  }}>
+                    <span style={{ fontSize: '2rem' }}>🍽️</span>
+                    <span>Próximamente más locales en la categoría {cat.title}</span>
+                  </div>
+                ) : (
+                  catBusinesses.map(comercio => (
+                    <button key={comercio.id} style={{ backgroundColor: 'white', borderRadius: 'var(--radius-md)', overflow: 'hidden', boxShadow: 'var(--shadow-sm)', transition: 'var(--transition)', cursor: 'pointer', display: 'block', width: '100%', textAlign: 'left' }}
+                    onClick={() => {
+                      setSelectedComercio(comercio);
+                      setCart({});
+                    }}
+                    className="commerce-card"
+                    >
+                      <div style={{ position: 'relative', height: '160px' }}>
+                        {comercio.image ? (
+                          <Image src={comercio.image} alt={comercio.name} fill style={{ objectFit: 'cover' }} />
+                        ) : (
+                          <div style={{ width: '100%', height: '100%', background: '#e2e8f0' }} />
+                        )}
+                      </div>
+                      <div style={{ padding: '16px' }}>
+                        <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: '4px' }}>{comercio.name}</h3>
+                        <p style={{ color: 'var(--color-text-muted)', fontSize: '0.9rem' }}>Ver menú y pedir</p>
+                      </div>
+                    </button>
+                  ))
+                )}
               </div>
             </section>
             {index === Math.floor(categories.length / 2) && <PublicityBanner delay="2s" />}

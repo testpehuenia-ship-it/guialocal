@@ -29,6 +29,7 @@ export default function AccommodationsAdminPage() {
     type: '',
     image: '',
     whatsapp: '',
+    description: '',
     features: [] as string[]
   });
   
@@ -60,11 +61,12 @@ export default function AccommodationsAdminPage() {
         type: acc.type || '',
         image: acc.image || '',
         whatsapp: acc.whatsapp || '',
+        description: acc.description || '',
         features: acc.features?.map((f: any) => f.name) || []
       });
     } else {
       setEditingAcc(null);
-      setFormData({ name: '', type: '', image: '', whatsapp: '', features: [] });
+      setFormData({ name: '', type: '', image: '', whatsapp: '', description: '', features: [] });
     }
     setIsModalOpen(true);
   };
@@ -311,6 +313,26 @@ export default function AccommodationsAdminPage() {
                     required
                   />
                 </div>
+              </div>
+
+              <div className="form-group">
+                <label>Descripción del Alojamiento</label>
+                <textarea 
+                  value={formData.description} 
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Ej: Hermosas cabañas frente al lago, con capacidad para 4 a 6 personas, totalmente equipadas con calefacción por radiadores, deck individual, parrilla y cochera cubierta."
+                  rows={3}
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #cbd5e1',
+                    fontSize: '0.95rem',
+                    lineHeight: '1.5',
+                    fontFamily: 'inherit',
+                    resize: 'vertical'
+                  }}
+                />
               </div>
               
               <div className="form-group">

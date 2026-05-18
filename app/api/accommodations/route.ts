@@ -21,7 +21,7 @@ export async function GET() {
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    const { name, type, image, whatsapp, features } = body;
+    const { name, type, image, whatsapp, description, features } = body;
 
     const accommodation = await prisma.accommodation.create({
       data: {
@@ -29,6 +29,7 @@ export async function POST(request: Request) {
         type,
         image,
         whatsapp,
+        description,
         features: {
           create: features.map((f: string) => ({ name: f }))
         }
