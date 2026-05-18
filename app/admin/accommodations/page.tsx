@@ -89,7 +89,11 @@ export default function AccommodationsAdminPage() {
       });
       const data = await res.json();
       if (data.success) {
-        setFormData(prev => ({ ...prev, image: data.url }));
+        setFormData(prev => {
+          const currentImages = prev.image ? prev.image.split(',').filter(Boolean) : [];
+          const updatedImages = [...currentImages, data.url];
+          return { ...prev, image: updatedImages.join(',') };
+        });
       } else {
         alert('Error al subir imagen: ' + data.error);
       }
@@ -97,7 +101,16 @@ export default function AccommodationsAdminPage() {
       alert('Error de conexión al subir');
     } finally {
       setUploading(false);
+      e.target.value = ''; // Reset standard file input to allow uploading again
     }
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setFormData(prev => {
+      const currentImages = prev.image ? prev.image.split(',').filter(Boolean) : [];
+      const updatedImages = currentImages.filter((_, idx) => idx !== indexToRemove);
+      return { ...prev, image: updatedImages.join(',') };
+    });
   };
 
   const addFeature = () => {
@@ -214,7 +227,7 @@ export default function AccommodationsAdminPage() {
                     <td>
                       <div className="category-img-thumb">
                         {acc.image ? (
-                          <img src={acc.image} alt={acc.name} />
+                          <img src={acc.image.split(',')[0]} alt={acc.name} />
                         ) : (
                           <ImageIcon size={20} />
                         )}
@@ -301,7 +314,7 @@ export default function AccommodationsAdminPage() {
               </div>
               
               <div className="form-group">
-                <label>Imagen del Alojamiento</label>
+                <label>Imágenes del Alojamiento (Sube una o varias para el carrusel)</label>
                 <div className="file-upload-wrapper">
                   <input 
                     type="file" 
@@ -312,12 +325,23 @@ export default function AccommodationsAdminPage() {
                   />
                   <label htmlFor="acc-image" className="file-upload-label">
                     {uploading ? <Loader2 className="animate-spin" /> : <Upload size={18} />}
-                    {formData.image ? 'Cambiar Imagen' : 'Subir Imagen'}
+                    {formData.image ? 'Agregar Otra Imagen (Para el Carrusel)' : 'Subir Imagen Principal'}
                   </label>
                 </div>
                 {formData.image && (
-                  <div className="image-preview wide">
-                    <img src={formData.image} alt="Preview" />
+                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(120px, 1fr))', gap: '12px', marginTop: '16px' }}>
+                    {formData.image.split(',').filter(Boolean).map((imgUrl, idx) => (
+                      <div key={idx} style={{ position: 'relative', height: '90px', borderRadius: '10px', overflow: 'hidden', border: '1px solid #e2e8f0', boxShadow: '0 1px 3px rgba(0,0,0,0.1)' }}>
+                        <img src={imgUrl} alt={`Preview ${idx}`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                        <button 
+                          type="button" 
+                          onClick={() => removeImage(idx)} 
+                          style={{ position: 'absolute', top: '4px', right: '4px', background: 'rgba(239, 68, 68, 0.9)', color: 'white', border: 'none', borderRadius: '50%', width: '22px', height: '22px', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}
+                        >
+                          <X size={12} />
+                        </button>
+                      </div>
+                    ))}
                   </div>
                 )}
               </div>

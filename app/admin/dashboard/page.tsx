@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { useRouter } from 'next/navigation';
 import { 
   Users, 
   Store, 
@@ -8,10 +9,12 @@ import {
   TrendingUp, 
   Plus, 
   Calendar,
-  AlertCircle
+  AlertCircle,
+  Map
 } from 'lucide-react';
 
 export default function DashboardPage() {
+  const router = useRouter();
   const [stats, setStats] = React.useState({
     categories: 0,
     businesses: 0,
@@ -86,14 +89,14 @@ export default function DashboardPage() {
               <h2>Acciones Rápidas</h2>
             </div>
             <div className="quick-actions">
-              <button className="action-btn primary">
+              <button className="action-btn primary" onClick={() => router.push('/admin/businesses')}>
                 <Plus size={20} /> Nuevo Comercio
               </button>
-              <button className="action-btn secondary">
-                <Plus size={20} /> Nueva Categoría
-              </button>
-              <button className="action-btn secondary">
+              <button className="action-btn secondary" onClick={() => router.push('/admin/accommodations')}>
                 <Plus size={20} /> Nuevo Alojamiento
+              </button>
+              <button className="action-btn secondary" onClick={() => router.push('/admin/map')}>
+                <Map size={20} /> Mapas y Rutas
               </button>
             </div>
           </div>

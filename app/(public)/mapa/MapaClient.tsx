@@ -271,9 +271,9 @@ export default function MapaClient({ initialRoutes, initialMarkers }: MapaClient
 
         @media (max-width: 768px) {
           .map-wrapper {
-            width: 92% !important;
-            margin-left: auto !important;
-            margin-right: auto !important;
+            width: 88% !important;
+            margin-left: 2% !important;
+            margin-right: 10% !important;
             height: 420px !important;
             border-radius: 16px;
           }

@@ -15,7 +15,8 @@ import {
   UtensilsCrossed,
   Upload,
   Info,
-  DollarSign
+  DollarSign,
+  Check
 } from 'lucide-react';
 
 export default function BusinessesAdminPage() {
@@ -41,6 +42,7 @@ export default function BusinessesAdminPage() {
 
   // Menu Item Local State (dentro del modal)
   const [newMenuItem, setNewMenuItem] = React.useState({ name: '', description: '', price: '', image: '' });
+  const [editingMenuItemId, setEditingMenuItemId] = React.useState<string | null>(null);
 
   const fetchData = async () => {
     try {
@@ -78,12 +80,14 @@ export default function BusinessesAdminPage() {
       setFormData({ name: '', image: '', whatsapp: '', categoryId: '', menu: [] });
     }
     setNewMenuItem({ name: '', description: '', price: '', image: '' });
+    setEditingMenuItemId(null);
     setIsModalOpen(true);
   };
 
   const closeModal = () => {
     setIsModalOpen(false);
     setEditingBusiness(null);
+    setEditingMenuItemId(null);
   };
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, target: 'business' | 'menuItem' = 'business') => {
@@ -119,19 +123,46 @@ export default function BusinessesAdminPage() {
     }
   };
 
-  const addMenuItem = () => {
+  const saveMenuItem = () => {
     if (!newMenuItem.name || !newMenuItem.price) {
       alert('Nombre y Precio son obligatorios');
       return;
     }
-    setFormData(prev => ({
-      ...prev,
-      menu: [...prev.menu, { ...newMenuItem, id: Date.now().toString() }]
-    }));
+
+    if (editingMenuItemId) {
+      setFormData(prev => ({
+        ...prev,
+        menu: prev.menu.map(m => m.id === editingMenuItemId ? { ...newMenuItem, id: editingMenuItemId } : m)
+      }));
+      setEditingMenuItemId(null);
+    } else {
+      setFormData(prev => ({
+        ...prev,
+        menu: [...prev.menu, { ...newMenuItem, id: Date.now().toString() }]
+      }));
+    }
     setNewMenuItem({ name: '', description: '', price: '', image: '' });
   };
 
+  const startEditMenuItem = (item: any) => {
+    setNewMenuItem({
+      name: item.name,
+      description: item.description || '',
+      price: item.price.toString(),
+      image: item.image || ''
+    });
+    setEditingMenuItemId(item.id);
+  };
+
+  const cancelEditMenuItem = () => {
+    setNewMenuItem({ name: '', description: '', price: '', image: '' });
+    setEditingMenuItemId(null);
+  };
+
   const removeMenuItem = (id: string) => {
+    if (editingMenuItemId === id) {
+      cancelEditMenuItem();
+    }
     setFormData(prev => ({
       ...prev,
       menu: prev.menu.filter(m => m.id !== id)
@@ -141,6 +172,16 @@ export default function BusinessesAdminPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setSaving(true);
+
+    // Auto-commit any in-progress menu item before sending to the backend
+    let finalMenu = [...formData.menu];
+    if (newMenuItem.name.trim() && newMenuItem.price) {
+      if (editingMenuItemId) {
+        finalMenu = finalMenu.map(m => m.id === editingMenuItemId ? { ...newMenuItem, id: editingMenuItemId } : m);
+      } else {
+        finalMenu = [...finalMenu, { ...newMenuItem, id: Date.now().toString() }];
+      }
+    }
 
     try {
       const url = editingBusiness 
@@ -152,7 +193,10 @@ export default function BusinessesAdminPage() {
       const res = await fetch(url, {
         method,
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          menu: finalMenu
+        }),
       });
 
       if (res.ok) {
@@ -352,7 +396,17 @@ export default function BusinessesAdminPage() {
                 <div className="modal-section">
                   <h3 className="section-title"><UtensilsCrossed size={18} /> Gestión del Menú</h3>
                   
-                  <div className="menu-form">
+                  <div 
+                    className="menu-form" 
+                    style={{
+                      border: editingMenuItemId ? '2px solid #0d9488' : '1px dashed #cbd5e1',
+                      borderRadius: '12px',
+                      padding: '16px',
+                      marginBottom: '16px',
+                      transition: 'all 0.3s ease',
+                      backgroundColor: editingMenuItemId ? '#f0fdfa' : '#f8fafc'
+                    }}
+                  >
                     <div className="form-row">
                       <div className="form-group" style={{ flex: 1 }}>
                         <label>Nombre del Plato</label>
@@ -410,9 +464,17 @@ export default function BusinessesAdminPage() {
                           )}
                         </div>
                       </div>
-                      <button type="button" className="btn-add-item" onClick={addMenuItem}>
-                        <Plus size={18} /> Agregar
-                      </button>
+                      <div style={{ display: 'flex', gap: '8px' }}>
+                        {editingMenuItemId && (
+                          <button type="button" className="btn-cancel" onClick={cancelEditMenuItem} style={{ padding: '8px 16px', borderRadius: '10px' }}>
+                            Cancelar
+                          </button>
+                        )}
+                        <button type="button" className="btn-add-item" onClick={saveMenuItem} style={{ backgroundColor: editingMenuItemId ? '#0d9488' : '#1e293b' }}>
+                          {editingMenuItemId ? <Check size={18} /> : <Plus size={18} />}
+                          {editingMenuItemId ? 'Guardar' : 'Agregar'}
+                        </button>
+                      </div>
                     </div>
                   </div>
 
@@ -438,9 +500,14 @@ export default function BusinessesAdminPage() {
                               </div>
                               {item.description && <p className="item-card-desc">{item.description}</p>}
                             </div>
-                            <button type="button" className="btn-remove-item" onClick={() => removeMenuItem(item.id)}>
-                              <Trash2 size={14} />
-                            </button>
+                            <div style={{ display: 'flex', gap: '4px' }}>
+                              <button type="button" className="btn-remove-item" style={{ color: '#0d9488' }} onClick={() => startEditMenuItem(item)} title="Editar ítem">
+                                <Edit2 size={14} />
+                              </button>
+                              <button type="button" className="btn-remove-item" onClick={() => removeMenuItem(item.id)} title="Eliminar ítem">
+                                <Trash2 size={14} />
+                              </button>
+                            </div>
                           </div>
                         ))
                       )}
