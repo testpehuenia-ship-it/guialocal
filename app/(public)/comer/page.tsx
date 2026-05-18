@@ -27,7 +27,7 @@ export const revalidate = 60;
 export default async function Page() {
   const [categories, businesses] = await Promise.all([
     prisma.category.findMany({
-      orderBy: { name: 'asc' }
+      orderBy: { title: 'asc' }
     }),
     prisma.business.findMany({
       include: {

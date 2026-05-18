@@ -13,7 +13,8 @@ import {
   ChevronRight,
   Tags,
   Mountain,
-  MapPin
+  MapPin,
+  Map
 } from 'lucide-react';
 
 export default function AdminLayout({
@@ -34,6 +35,7 @@ export default function AdminLayout({
     { icon: Home, label: 'Alojamientos', href: '/admin/accommodations' },
     { icon: Mountain, label: 'Aventuras', href: '/admin/adventures' },
     { icon: MapPin, label: 'Guía Local', href: '/admin/local-services' },
+    { icon: Map, label: 'Mapas y Rutas', href: '/admin/map' },
     { icon: Settings, label: 'Configuración', href: '/admin/settings' },
   ];
 

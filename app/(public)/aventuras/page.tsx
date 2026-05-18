@@ -26,7 +26,7 @@ export const revalidate = 60;
 
 export default async function Page() {
   const adventures = await prisma.adventure.findMany({
-    orderBy: { title: 'asc' }
+    orderBy: { name: 'asc' }
   });
   
   return <AventurasClient initialAdventures={JSON.parse(JSON.stringify(adventures))} />;

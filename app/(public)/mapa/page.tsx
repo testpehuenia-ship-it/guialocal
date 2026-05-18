@@ -1,5 +1,8 @@
 import { Metadata } from 'next';
+import { prisma } from '@/lib/db';
 import MapaClient from './MapaClient';
+
+export const dynamic = 'force-dynamic';
 
 export const metadata: Metadata = {
   title: 'Mapa Interactivo 3D y Estado de Rutas de Villa Pehuenia',
@@ -20,6 +23,13 @@ export const metadata: Metadata = {
   }
 };
 
-export default function Page() {
-  return <MapaClient />;
+export default async function Page() {
+  const routes = await prisma.route.findMany({
+    orderBy: { createdAt: 'asc' }
+  });
+  const markers = await prisma.mapMarker.findMany({
+    orderBy: { createdAt: 'desc' }
+  });
+
+  return <MapaClient initialRoutes={JSON.parse(JSON.stringify(routes))} initialMarkers={JSON.parse(JSON.stringify(markers))} />;
 }
